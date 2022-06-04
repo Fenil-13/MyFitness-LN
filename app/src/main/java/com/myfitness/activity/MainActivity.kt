@@ -1,20 +1,25 @@
 package com.myfitness.activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.myfitness.Repository.FitnessRepository
 import com.myfitness.adapter.FitnessAdapter
+import com.myfitness.api.models.Result
 import com.myfitness.databinding.ActivityMainBinding
 import com.myfitness.listener.FitnessClickListener
 import com.myfitness.utils.Resource
 import com.myfitness.viewmodels.FitnessViewModel
 import com.myfitness.viewmodels.FitnessViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 const val KEY_NAME="com.fitness.name"
 const val KEY_IMAGE="com.fitness.image"
 const val KEY_PHONE="com.fitness.phone"
@@ -24,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var fitnessAdapter: FitnessAdapter
     lateinit var binding: ActivityMainBinding
     lateinit var fitnessViewModel: FitnessViewModel
+    var currList = mutableListOf<Result>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityMainBinding.inflate(layoutInflater)
@@ -41,7 +47,9 @@ class MainActivity : AppCompatActivity() {
         fitnessViewModel.allRandomUser.observe(this@MainActivity){
             response->
             if (response is Resource.Success) {
-                fitnessAdapter.differ.submitList(response.data!!.results)
+                currList.addAll(response.data!!.results)
+                fitnessAdapter.differ.submitList(currList)
+
                 binding.rvShimmerView.visibility=View.GONE
                 binding.rvShimmerView.stopShimmer()
                 binding.rvBooking.visibility=View.VISIBLE
@@ -56,6 +64,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun setUpRecycleView() {
         fitnessAdapter=FitnessAdapter(object :FitnessClickListener{
@@ -74,6 +83,18 @@ class MainActivity : AppCompatActivity() {
             layoutManager=LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL,false)
             setHasFixedSize(true)
             adapter=fitnessAdapter
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (!recyclerView.canScrollVertically(1)) {
+                       //you reach to last position
+                           CoroutineScope(Dispatchers.Default).launch {
+                               fitnessViewModel.getRandomUser()
+                           }
+
+                    }
+                }
+            })
         }
     }
 }

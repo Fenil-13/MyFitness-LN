@@ -7,8 +7,11 @@ import com.myfitness.api.models.Result
 import retrofit2.Response
 
 class FitnessRepository {
+    var page=0;
+    var result=50;
     suspend fun getUserData():Response<FitnessResponse>{
-        val response=FitnessClient.publicApi.getRandomUser();
+            page++
+        val response=FitnessClient.publicApi.getRandomUser(page,result);
         return response;
     }
 }

@@ -37,6 +37,12 @@ class DetailActivity : AppCompatActivity() {
         binding.ivBack.setOnClickListener {
             onBackPressed()
         }
+        binding.ivContact.setOnClickListener {
+            doCall()
+        }
+        binding.ivBook.setOnClickListener {
+            doEmail()
+        }
         binding.tvNumber.setOnClickListener {
             doCall()
         }
