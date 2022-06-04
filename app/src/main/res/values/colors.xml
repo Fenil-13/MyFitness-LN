@@ -11,5 +11,7 @@
     <color name="red">#F26968</color>
     <color name="light_black">#878383</color>
     <color name="light_white">#F4F4F4</color>
+    <color name="shimmer_background">#dddddd</color>
+
 
 </resources>

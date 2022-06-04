@@ -3,6 +3,7 @@ package com.myfitness.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,7 +28,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding= ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        binding.rvBooking.visibility=View.GONE
+        binding.rvShimmerView.visibility=View.VISIBLE
+        binding.rvShimmerView.startShimmer()
         setUpRecycleView()
         val factory=FitnessViewModelFactory(application, FitnessRepository())
         fitnessViewModel= ViewModelProvider(this@MainActivity,factory)[FitnessViewModel::class.java]
@@ -39,9 +42,17 @@ class MainActivity : AppCompatActivity() {
             response->
             if (response is Resource.Success) {
                 fitnessAdapter.differ.submitList(response.data!!.results)
+                binding.rvShimmerView.visibility=View.GONE
+                binding.rvShimmerView.stopShimmer()
+                binding.rvBooking.visibility=View.VISIBLE
             } else if (response is Resource.Error) {
                 Toast.makeText(this@MainActivity, "Error : ${response.message}", Toast.LENGTH_SHORT).show()
+                binding.rvBooking.visibility=View.GONE
             } else if (response is Resource.Loading) {
+                binding.rvBooking.visibility=View.GONE
+                binding.rvShimmerView.visibility=View.VISIBLE
+                binding.rvShimmerView.startShimmer()
+
             }
         }
     }
